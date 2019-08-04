@@ -2,7 +2,8 @@ import re
 
 regular = {
     'manhua.dmzj.com': 'DmzjParser',
-    'e-hentai.org': 'EhentaiParser'
+    'e-hentai.org': 'EhentaiParser',
+    'www.dmzx.com': 'DmzxParser'
 }
 
 def get_parser(url):

@@ -90,7 +90,7 @@ class Scheduler(object):
             #async with aiohttp.ClientSession(connector=ProxyConnector(proxy='http://192.168.28.1:8888')) as sess:
             async with self.aiohttp_session.get(url, verify_ssl=self.verify_ssl) as resp:
                 nonlocal info
-                ret_data = await resp.text()
+                ret_data = await resp.text(errors='ignore')
                 info = await self.parser.parse_info(ret_data)
         
         loop = asyncio.get_event_loop()
@@ -117,7 +117,7 @@ class Scheduler(object):
             with (await self.sema):
                 async with self.aiohttp_session.get(url) as ret:
 
-                    ret_data = await ret.text()
+                    ret_data = await ret.text(errors='ignore')
                     parsed_data = await self.parser.parse_chapter(ret_data)
                     
                     if self.parser.chapter_mode:
@@ -158,7 +158,7 @@ class Scheduler(object):
             nonlocal total_image_num
             with (await self.sema):
                 async with self.aiohttp_session.get(chapter_url, verify_ssl=self.verify_ssl) as resp:
-                    image_list = await self.parser.parse_image_list(await resp.text())
+                    image_list = await self.parser.parse_image_list(await resp.text(errors='ignore'))
                     total_image_num += len(image_list)
                     image_url_list.update({chapter_name: image_list})
         
