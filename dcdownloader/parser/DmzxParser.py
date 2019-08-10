@@ -36,12 +36,13 @@ class DmzxParser(BaseParser):
 
     async def parse_chapter(self, data):
         doc = pq(data)
-        print(data)
+        # print(data)
         url_list = {}
         d = doc('.subsrbelist')
 
-        for u in doc('.subsrbelist'):
-            url_list.setdefault(pq(u).text(), self.page_base_url + pq(u).attr('href'))
+        for u in doc('.subsrbelist')('a'):
+            # print(pq(u).text(), pq(u).attr('href'))
+            url_list.setdefault(pq(u).text(), pq(u).attr('href'))
 
         return (url_list,)
 
