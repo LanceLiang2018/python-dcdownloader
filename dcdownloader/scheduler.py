@@ -5,6 +5,8 @@ import aiofiles
 import aiohttp
 import filetype
 
+import os
+
 from dcdownloader import base_logger, utils
 # for test
 from dcdownloader.parser.SimpleParser import SimpleParser
@@ -210,10 +212,30 @@ class Scheduler(object):
                 utils.mkdir('/'.join(save_path.split('/')[:-1]))
                 #async with aiohttp.ClientSession(headers=self.header) as session:
 
+                # 检查是否已经下载过
+                # 条件：文件存在and大小大于100kb
+                save_path_tmp = save_path
+                if 'filename_extension' in dir(self.parser):
+                    filename_extension = self.parser.filename_extension
+                else:
+                    filename_extension = '.jpg'
+
+                if filename_extension:
+                    save_path_tmp += '.' + filename_extension
+                else:
+                    logger.warning('unknown filetype')
+
+                # print('debug save_path:', save_path_tmp)
+                if os.path.exists(save_path_tmp):
+                    logger.warning('Exist file: ' + save_path_tmp)
+                    if os.path.getsize(save_path_tmp) <= 100 * 1024:
+                        logger.warning('Too small file, re-download')
+                    return
+
                 if self.fetch_only:
                     logger.warning('Fetch only mode is on, all downloading process will not run')
                     return
-                
+
                 async with self.aiohttp_session.get(image_url, verify_ssl=self.verify_ssl) as resp:
                     resp_data = await resp.content.read()
                     if 'on_download_complete' in dir(self.parser):
