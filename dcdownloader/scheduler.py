@@ -7,7 +7,7 @@ import filetype
 
 import os
 
-from dcdownloader import base_logger, utils
+from dcdownloader import base_logger, utils, update_info
 # for test
 from dcdownloader.parser.SimpleParser import SimpleParser
 from dcdownloader.utils import retry
@@ -45,6 +45,8 @@ class Scheduler(object):
 
         self.parser = parser
 
+        self.comic_name = None
+
         if 'request_header' in dir(self.parser):
             self.header = self.parser.request_header
 
@@ -61,7 +63,8 @@ class Scheduler(object):
             return
         else:
             logger.info('Comic name: %s', info.get('name'))
-        
+            self.comic_name = info.get('name')
+
         logger.info('Fetch chapter list')
         clist = self._get_chapter_list(base_url=self.url)
 
@@ -224,6 +227,12 @@ class Scheduler(object):
                     save_path_tmp += '.' + filename_extension
                 else:
                     logger.warning('unknown filetype')
+
+                # save info here!
+                root_path = os.path.dirname(os.path.dirname(save_path))
+                if not update_info.exist(root_path):
+                    await update_info.save(self.url, root_path)
+                # await update_info.save(self.url, os.path.dirname(save_path))
 
                 # print('debug save_path:', save_path_tmp)
                 if os.path.exists(save_path_tmp):

@@ -6,6 +6,7 @@ regular = {
     'www.dmzx.com': 'DmzxParser'
 }
 
+
 def get_parser(url):
     for (k, v) in regular.items():
         if re.search(k, url):
