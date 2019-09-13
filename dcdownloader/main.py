@@ -34,7 +34,8 @@ def main():
             if not os.path.isdir(target_path):
                 continue
             if os.path.exists(os.path.join(target_path, update_info.FILENAME)):
-                print(target_path)
+                # print(target_path)
+                logger.info('Task: %s' % target_path)
                 task_paths.append(target_path)
 
         for task in task_paths:
@@ -42,7 +43,7 @@ def main():
             if info is None:
                 continue
             s = Scheduler(url=info['url'], output_path=args.output_path, parser=parser_selector.get_parser(info['url']),
-                          fetch_only=args.fetch_only, proxy=args.proxy, verify_ssl=args.verify_ssl)
+                          fetch_only=args.fetch_only, proxy=args.proxy, verify_ssl=args.verify_ssl, update=args.update)
             s.run()
         exit()
 
@@ -52,7 +53,7 @@ def main():
         exit(1)
     
     s = Scheduler(url=args.url, output_path=args.output_path, parser=parser_selector.get_parser(args.url),
-                  fetch_only=args.fetch_only, proxy=args.proxy, verify_ssl=args.verify_ssl)
+                  fetch_only=args.fetch_only, proxy=args.proxy, verify_ssl=args.verify_ssl, update=args.update)
     s.run()
 
 

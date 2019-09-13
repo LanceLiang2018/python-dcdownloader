@@ -20,7 +20,7 @@ class Scheduler(object):
 
     def __init__(self, url, output_path='.', name='Scheduler', max_connection_num=10, max_retry_num=5, 
                     proxy=None, header=None, save_manifest_file=False, parser=SimpleParser(),
-                    fetch_only=False, verify_ssl=True):
+                    fetch_only=False, verify_ssl=True, update=False):
         
         # usable config:
         # name: Scheduler instance name
@@ -46,6 +46,7 @@ class Scheduler(object):
         self.parser = parser
 
         self.comic_name = None
+        self.update = update
 
         if 'request_header' in dir(self.parser):
             self.header = self.parser.request_header
@@ -211,7 +212,8 @@ class Scheduler(object):
             on_fail=lambda err, args, retry_num: logger.error('Failed to request target "%s" (%s)', args[1]['image_url'], str(err)) )
         async def download(image_url, save_path, name):
             with (await self.sema):
-                logger.info('Start download: %s', self._generate_download_info(name, save_path))
+                if self.update is False:
+                    logger.info('Start download: %s', self._generate_download_info(name, save_path))
                 utils.mkdir('/'.join(save_path.split('/')[:-1]))
                 #async with aiohttp.ClientSession(headers=self.header) as session:
 
@@ -236,9 +238,10 @@ class Scheduler(object):
 
                 # print('debug save_path:', save_path_tmp)
                 if os.path.exists(save_path_tmp):
-                    logger.warning('Exist file: ' + save_path_tmp)
+                    if self.update is False:
+                        logger.warning('Exist file: ' + save_path_tmp)
                     if os.path.getsize(save_path_tmp) <= 100 * 1024:
-                        logger.warning('Too small file, re-download')
+                        logger.warning('Too small file, re-download: %s' % save_path_tmp)
                     return
 
                 if self.fetch_only:
